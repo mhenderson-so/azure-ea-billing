@@ -102,7 +102,6 @@ func (ea *Config) MakeAPIRequestEndpoint(method, endpoint string) (*[]byte, erro
 // MakeAPIRequestRaw takes a full URL and adds the header keys (but expects a fully formed URL)
 // including the EA number, etc
 func (ea *Config) MakeAPIRequestRaw(method, fullURL string) (*[]byte, error) {
-	fmt.Println(fullURL)
 	if ea.httpClient == nil {
 		ea.httpClient = &http.Client{}
 	}
@@ -167,28 +166,6 @@ func getNeatReport(report *string, startAt int) string {
 	return reportNeat
 }
 
-func (reps *MonthDownloadStructs) convertSummaryReport(report *string) error {
-	if *report == "" {
-		return nil
-	}
-
-	reportNeat := getNeatReport(report, 29)
-	err := gocsv.UnmarshalString(reportNeat, &reps.DetailReport)
-	if err != nil {
-		return err
-	}
-
-	//The pricing info comes in a string, which we don't trust with putting decimal places into a float. But if we strip the decimal out,
-	//we get the price in cents and we can store that in an int. We also have a date field that needs dealing with.
-	for _, l := range reps.DetailReport {
-		ExtendedCost, _ := strconv.Atoi(strings.Replace(l.ExtendedCostRaw, ".", "", 1))
-		l.ExtendedCost = ExtendedCost / 100
-		l.Date, _ = time.Parse("01/02/2006", l.DateRaw)
-	}
-
-	return nil
-}
-
 func (reps *MonthDownloadStructs) convertDetailReport(report *string) error {
 	if *report == "" {
 		return nil
@@ -203,8 +180,6 @@ func (reps *MonthDownloadStructs) convertDetailReport(report *string) error {
 	//The pricing info comes in a string, which we don't trust with putting decimal places into a float. But if we strip the decimal out,
 	//we get the price in cents and we can store that in an int. We also have a date field that needs dealing with.
 	for _, l := range reps.DetailReport {
-		ExtendedCost, _ := strconv.Atoi(strings.Replace(l.ExtendedCostRaw, ".", "", 1))
-		l.ExtendedCost = ExtendedCost / 100
 		l.Date, _ = time.Parse("01/02/2006", l.DateRaw)
 	}
 
@@ -225,8 +200,10 @@ func (reps *MonthDownloadStructs) convertPriceSheet(report *string) error {
 	//The pricing info comes in a string, which we don't trust with putting decimal places into a float. But if we strip the decimal out,
 	//we get the price in cents and we can store that in an int.
 	for _, l := range reps.PriceSheetReport {
+		UnitPrice, _ := strconv.Atoi(strings.Replace(l.UnitPriceRaw, ".", "", 1))
 		CommitmentUnitPrice, _ := strconv.Atoi(strings.Replace(l.CommitmentUnitPriceRaw, ".", "", 1))
 		OverageUnitPrice, _ := strconv.Atoi(strings.Replace(l.OverageUnitPriceRaw, ".", "", 1))
+		l.UnitPrice = UnitPrice / 100
 		l.CommitmentUnitPrice = CommitmentUnitPrice / 100
 		l.OverageUnitPrice = OverageUnitPrice / 100
 	}

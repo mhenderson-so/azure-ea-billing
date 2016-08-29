@@ -47,6 +47,9 @@ type MonthDownloadStructs struct {
 type PriceSheetRow struct {
 	Service                string `csv:"Service"`
 	UnitOfMeasure          string `csv:"Unit of Measure"`
+	PartNumber             string `csv:"Part Number"`
+	UnitPriceRaw           string `csv:"Unit Price"`
+	UnitPrice              int    `csv:"-"`
 	CommitmentPartNumber   string `csv:"Commitment Part Number"`
 	CommitmentUnitPriceRaw string `csv:"Commitment Unit Price"`
 	CommitmentUnitPrice    int    `csv:"-"`
@@ -79,7 +82,6 @@ type DetailRow struct {
 	ConsumedQuantity       float64   `csv:"Consumed Quantity"`
 	ResourceRate           float64   `csv:"ResourceRate"`
 	ExtendedCostRaw        string    `csv:"ExtendedCost"`
-	ExtendedCost           int       `csv:"-"`
 	ResourceLocation       string    `csv:"Resource Location"`
 	ConsumedService        string    `csv:"Consumed Service"`
 	InstanceID             string    `csv:"Instance ID"`
