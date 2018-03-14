@@ -22,7 +22,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	reports := eab.GetMonthReportsCSV(resp.AvailableMonths[20], azureeabilling.DownloadForStructs)
+	reports := eab.GetMonthReportsCSV(resp.AvailableMonths[0], azureeabilling.DownloadForStructs)
 	fmt.Println(reports.SummaryReport)
 
 	structs, err := reports.ConvertToStructs()

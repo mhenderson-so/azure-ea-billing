@@ -159,9 +159,14 @@ func getNeatReport(report *string, startAt int) string {
 	// - Stripping the first x characters, which is the stupid junk above the header
 	// - Removing trailing commas from any remaining lines, which upsets the column count
 
+	if startAt < 0 {
+		startAt = 0
+	}
 	stupidCrLf := regexp.MustCompile("\r\n")
 	stupidTrailingComma := regexp.MustCompile(",\n")
-	reportNeat := stupidTrailingComma.ReplaceAllString(stupidCrLf.ReplaceAllString(*report, "\n")[startAt:], "\n")
+	trimmedReport := *report
+	trimmedReport = trimmedReport[startAt:]
+	reportNeat := stupidTrailingComma.ReplaceAllString(stupidCrLf.ReplaceAllString(trimmedReport, "\n"), "\n")
 
 	return reportNeat
 }
@@ -171,7 +176,8 @@ func (reps *MonthDownloadStructs) convertDetailReport(report *string) error {
 		return nil
 	}
 
-	reportNeat := getNeatReport(report, 29)
+	startAt := strings.Index(*report, `"AccountOwnerId"`)
+	reportNeat := getNeatReport(report, startAt)
 	err := gocsv.UnmarshalString(reportNeat, &reps.DetailReport)
 	if err != nil {
 		return err
@@ -191,7 +197,8 @@ func (reps *MonthDownloadStructs) convertPriceSheet(report *string) error {
 		return nil
 	}
 
-	reportNeat := getNeatReport(report, 22)
+	startAt := strings.Index(*report, `"Service"`)
+	reportNeat := getNeatReport(report, startAt)
 	err := gocsv.UnmarshalString(reportNeat, &reps.PriceSheetReport)
 	if err != nil {
 		return err
